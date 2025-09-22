@@ -51,12 +51,10 @@ export default withAuth(
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
+     * Temporarily disable middleware to debug Vercel SSO redirect issue
+     * Only protect specific routes for now
      */
-    "/((?!_next/static|_next/image|favicon.ico|public).*)",
+    "/dashboard/:path*",
+    "/api/((?!auth).*)",
   ],
 };
