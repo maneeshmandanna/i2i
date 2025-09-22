@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,44 @@ export default function VerifyMagicLinkPage() {
   );
   const [message, setMessage] = useState("");
 
+  const verifyToken = useCallback(
+    async (token: string) => {
+      try {
+        const response = await fetch("/api/simple-auth/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setStatus("success");
+          setMessage(`Welcome, ${data.email}!`);
+
+          // Store session
+          localStorage.setItem("simpleSession", JSON.stringify(data.session));
+
+          // Redirect based on admin status
+          setTimeout(() => {
+            if (data.session.isAdmin) {
+              router.push("/simple-admin");
+            } else {
+              router.push("/simple-dashboard");
+            }
+          }, 2000);
+        } else {
+          setStatus("error");
+          setMessage(data.error || "Verification failed");
+        }
+      } catch (error) {
+        setStatus("error");
+        setMessage("Network error. Please try again.");
+      }
+    },
+    [router]
+  );
+
   useEffect(() => {
     if (!token) {
       setStatus("error");
@@ -24,41 +62,6 @@ export default function VerifyMagicLinkPage() {
 
     verifyToken(token);
   }, [token, verifyToken]);
-
-  const verifyToken = async (token: string) => {
-    try {
-      const response = await fetch("/api/simple-auth/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setStatus("success");
-        setMessage(`Welcome, ${data.email}!`);
-
-        // Store session
-        localStorage.setItem("simpleSession", JSON.stringify(data.session));
-
-        // Redirect based on admin status
-        setTimeout(() => {
-          if (data.session.isAdmin) {
-            router.push("/simple-admin");
-          } else {
-            router.push("/simple-dashboard");
-          }
-        }, 2000);
-      } else {
-        setStatus("error");
-        setMessage(data.error || "Verification failed");
-      }
-    } catch (error) {
-      setStatus("error");
-      setMessage("Network error. Please try again.");
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
