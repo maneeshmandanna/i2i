@@ -87,8 +87,6 @@ export const authOptions: NextAuthOptions = {
     verifyRequest: "/login", // Redirect verification requests to login
   },
   secret: process.env.NEXTAUTH_SECRET,
-  // Remove hardcoded URL - let NextAuth auto-detect from request headers
-  trustHost: true,
 };
 
 // Helper function to get server session
