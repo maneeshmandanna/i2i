@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isWhitelisted, createMagicToken } from "@/lib/simple-auth";
+import { sendEmail, createMagicLinkEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -23,21 +24,27 @@ export async function POST(request: Request) {
       process.env.NEXTAUTH_URL || "http://localhost:3000"
     }/simple-auth/verify?token=${token}`;
 
-    // In production, you'd send this via email service (SendGrid, etc.)
-    // For now, we'll log it and return it for testing
-    console.log(`Magic link for ${email}: ${magicLink}`);
+    // Create email content
+    const emailHtml = createMagicLinkEmail(email, magicLink);
 
-    // TODO: Replace with actual email sending
-    // await sendEmail({
-    //   to: email,
-    //   subject: 'Your secure login link',
-    //   html: `Click here to login: <a href="${magicLink}">Access Platform</a>`
-    // });
+    // Send email
+    const emailSent = await sendEmail({
+      to: email,
+      subject: "🔐 Your Secure Login Link - Image Processing Platform",
+      html: emailHtml,
+    });
+
+    if (!emailSent) {
+      console.error("Failed to send email to:", email);
+      // Still return success but log the issue
+    }
+
+    console.log(`Magic link for ${email}: ${magicLink}`);
 
     return NextResponse.json({
       success: true,
       message: "Magic link sent successfully",
-      // Remove this in production - only for testing
+      // Include link in development for easy testing
       magicLink: process.env.NODE_ENV === "development" ? magicLink : undefined,
     });
   } catch (error) {

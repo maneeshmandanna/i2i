@@ -4,13 +4,17 @@ import crypto from "crypto";
 // Simple whitelist - easy for non-techs to manage
 export const WHITELISTED_EMAILS = [
   "maneesh@maneeshmandanna.com",
+  "mailpcp@gmail.com",
   // Add more emails here:
   // 'user@company.com',
   // 'admin@example.com',
 ];
 
 // Admin emails (can manage whitelist)
-export const ADMIN_EMAILS = ["maneesh@maneeshmandanna.com"];
+export const ADMIN_EMAILS = [
+  "maneesh@maneeshmandanna.com",
+  "mailpcp@gmail.com",
+];
 
 // Check if email is whitelisted
 export function isWhitelisted(email: string): boolean {
