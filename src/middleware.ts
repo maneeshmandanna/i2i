@@ -56,10 +56,8 @@ export default withAuth(
 export const config = {
   matcher: [
     /*
-     * Temporarily disable middleware to debug Vercel SSO redirect issue
-     * Only protect specific routes for now
+     * Temporarily disable middleware completely to test API endpoints
      */
     "/dashboard/:path*",
-    "/api/((?!auth|test-).*)",
   ],
 };
