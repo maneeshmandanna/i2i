@@ -155,4 +155,32 @@ export class UserRepository {
       hasPrev: page > 1,
     };
   }
+
+  // Get all users (for management scripts)
+  static async findAll(): Promise<User[]> {
+    const allUsers = await db.select().from(users);
+    return allUsers as User[];
+  }
+
+  // Update whitelist status
+  static async updateWhitelistStatus(
+    id: string,
+    isWhitelisted: boolean
+  ): Promise<User | null> {
+    const [user] = await db
+      .update(users)
+      .set({
+        isWhitelisted,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+
+    return user ? (user as User) : null;
+  }
+
+  // Delete user (alias for delete method)
+  static async deleteUser(id: string): Promise<boolean> {
+    return this.delete(id);
+  }
 }
