@@ -6,8 +6,12 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
 
-    // Allow access to auth pages without authentication
-    if (pathname.startsWith("/login") || pathname.startsWith("/api/auth")) {
+    // Allow access to auth pages and test endpoints without authentication
+    if (
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/api/auth") ||
+      pathname.startsWith("/api/test-")
+    ) {
       return NextResponse.next();
     }
 
@@ -36,7 +40,8 @@ export default withAuth(
         if (
           pathname === "/" ||
           pathname.startsWith("/login") ||
-          pathname.startsWith("/api/auth")
+          pathname.startsWith("/api/auth") ||
+          pathname.startsWith("/api/test-")
         ) {
           return true;
         }
