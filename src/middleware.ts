@@ -60,6 +60,6 @@ export const config = {
      * Only protect specific routes for now
      */
     "/dashboard/:path*",
-    "/api/((?!auth).*)",
+    "/api/((?!auth|test-).*)",
   ],
 };
