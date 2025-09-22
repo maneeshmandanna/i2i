@@ -13,12 +13,16 @@ export default function DebugPage() {
                   NEXTAUTH_SECRET:{" "}
                   {process.env.NEXTAUTH_SECRET ? "✅ Set" : "❌ Missing"}
                 </li>
-                <li>NEXTAUTH_URL: {process.env.NEXTAUTH_URL || "Not set"}</li>
+                <li>
+                  NEXTAUTH_URL:{" "}
+                  {process.env.NEXTAUTH_URL || "🔄 Auto-detected (recommended)"}
+                </li>
                 <li>
                   POSTGRES_URL:{" "}
                   {process.env.POSTGRES_URL ? "✅ Set" : "❌ Missing"}
                 </li>
                 <li>NODE_ENV: {process.env.NODE_ENV}</li>
+                <li>VERCEL_URL: {process.env.VERCEL_URL || "Not available"}</li>
               </ul>
             </div>
 
