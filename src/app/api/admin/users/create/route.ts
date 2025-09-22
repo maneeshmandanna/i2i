@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
 import { UserRepository } from "@/lib/db";
+import { requireUserManagement } from "@/lib/auth-roles";
 
 export async function POST(request: Request) {
   try {
-    const { email, password, isWhitelisted = true } = await request.json();
+    // Check if user has admin/co-owner permissions
+    await requireUserManagement();
+
+    const {
+      email,
+      password,
+      isWhitelisted = true,
+      role = "user",
+    } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -31,7 +40,8 @@ export async function POST(request: Request) {
     const user = await UserRepository.createWithHashedPassword(
       email,
       password,
-      isWhitelisted
+      isWhitelisted,
+      role
     );
 
     return NextResponse.json({

@@ -44,6 +44,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             isWhitelisted: user.isWhitelisted,
+            role: user.role,
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -66,6 +67,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.isWhitelisted = user.isWhitelisted;
+        token.role = user.role;
       }
       return token;
     },
@@ -76,6 +78,7 @@ export const authOptions: NextAuthOptions = {
           id: token.id as string,
           email: token.email as string,
           isWhitelisted: token.isWhitelisted as boolean,
+          role: token.role as string,
         };
       }
       return session;

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { UserRepository } from "@/lib/db";
+import { requireUserManagement } from "@/lib/auth-roles";
 
 export async function POST(request: Request) {
   try {
+    // Check if user has admin/co-owner permissions
+    await requireUserManagement();
+
     const { userId } = await request.json();
 
     if (!userId) {

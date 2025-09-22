@@ -1,9 +1,13 @@
+// User role types
+export type UserRole = "user" | "admin" | "co-owner";
+
 // User types
 export interface User {
   id: string;
   email: string;
   passwordHash: string;
   isWhitelisted: boolean;
+  role: UserRole;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -12,12 +16,14 @@ export interface CreateUserInput {
   email: string;
   passwordHash: string;
   isWhitelisted?: boolean;
+  role?: UserRole;
 }
 
 export interface UpdateUserInput {
   email?: string;
   passwordHash?: string;
   isWhitelisted?: boolean;
+  role?: UserRole;
   updatedAt?: Date;
 }
 
@@ -165,6 +171,7 @@ export interface PaginationOptions {
 export interface UserFilters {
   email?: string;
   isWhitelisted?: boolean;
+  role?: UserRole;
 }
 
 export interface ImageFilters {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,11 +12,14 @@ interface User {
   id: string;
   email: string;
   isWhitelisted: boolean;
+  role: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export default function AdminPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -119,6 +124,34 @@ export default function AdminPage() {
     fetchUsers();
   }, []);
 
+  // Check authentication and role
+  if (status === "loading") {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!session?.user) {
+    router.push("/login");
+    return null;
+  }
+
+  // Check if user has admin or co-owner role
+  const userRole = session.user.role;
+  if (userRole !== "admin" && userRole !== "co-owner") {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <Alert variant="destructive">
+          <AlertDescription>
+            Access denied. Admin or co-owner role required.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">User Administration</h1>
@@ -186,6 +219,9 @@ export default function AdminPage() {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -208,6 +244,19 @@ export default function AdminPage() {
                       }`}
                     >
                       {user.isWhitelisted ? "Whitelisted" : "Not Whitelisted"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.role === "admin"
+                          ? "bg-purple-100 text-purple-800"
+                          : user.role === "co-owner"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

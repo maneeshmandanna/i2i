@@ -17,6 +17,7 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 255 }).unique().notNull(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   isWhitelisted: boolean("is_whitelisted").default(false).notNull(),
+  role: varchar("role", { length: 50 }).default("user").notNull(), // user, admin, co-owner
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

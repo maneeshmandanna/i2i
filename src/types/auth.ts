@@ -7,6 +7,7 @@ declare module "next-auth" {
       id: string;
       email: string;
       isWhitelisted: boolean;
+      role: string;
     } & DefaultSession["user"];
   }
 
@@ -14,6 +15,7 @@ declare module "next-auth" {
     id: string;
     email: string;
     isWhitelisted: boolean;
+    role: string;
   }
 }
 
@@ -22,6 +24,7 @@ declare module "next-auth/jwt" {
     id: string;
     email: string;
     isWhitelisted: boolean;
+    role: string;
   }
 }
 
@@ -43,6 +46,7 @@ export interface AuthState {
     id: string;
     email: string;
     isWhitelisted: boolean;
+    role: string;
   } | null;
   isLoading: boolean;
   error: string | null;

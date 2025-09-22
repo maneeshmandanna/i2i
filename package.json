@@ -14,6 +14,7 @@
     "db:seed": "tsx -e \"import { seedDatabase } from './src/lib/db'; seedDatabase();\"",
     "auth:create-test-user": "tsx scripts/create-test-user.ts",
     "auth:manage-users": "tsx scripts/manage-users.ts",
+    "db:migrate-roles": "tsx scripts/run-migration.ts",
     "db:debug": "tsx scripts/debug-db.ts",
     "db:test-code": "tsx scripts/test-with-mock-db.ts",
     "db:setup-local": "tsx scripts/setup-local-postgres.ts",

@@ -102,7 +102,8 @@ export class UserRepository {
   static async createWithHashedPassword(
     email: string,
     password: string,
-    isWhitelisted: boolean = false
+    isWhitelisted: boolean = false,
+    role: "user" | "admin" | "co-owner" = "user"
   ): Promise<User> {
     const passwordHash = await bcrypt.hash(password, 12);
 
@@ -110,6 +111,7 @@ export class UserRepository {
       email,
       passwordHash,
       isWhitelisted,
+      role,
     });
   }
 
