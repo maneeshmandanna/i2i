@@ -23,7 +23,7 @@ export default function VerifyMagicLinkPage() {
     }
 
     verifyToken(token);
-  }, [token]);
+  }, [token, verifyToken]);
 
   const verifyToken = async (token: string) => {
     try {

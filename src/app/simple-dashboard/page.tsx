@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Image, User, Settings } from "lucide-react";
+import { Image as ImageIcon, User, Settings } from "lucide-react";
 
 interface SimpleSession {
   email: string;
@@ -100,7 +100,7 @@ export default function SimpleDashboardPage() {
       {/* Coming Soon */}
       <div className="bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Image className="h-5 w-5" />
+          <ImageIcon className="h-5 w-5" />
           Image Processing
         </h2>
         <div className="text-center py-8">

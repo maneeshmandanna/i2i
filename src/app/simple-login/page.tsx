@@ -59,7 +59,7 @@ export default function SimpleLoginPage() {
               Check Your Email
             </h1>
             <p className="text-gray-600 mb-6">
-              We've sent a secure login link to <strong>{email}</strong>
+              We&apos;ve sent a secure login link to <strong>{email}</strong>
             </p>
             <div className="bg-blue-50 p-4 rounded-lg mb-6">
               <p className="text-sm text-blue-800">
