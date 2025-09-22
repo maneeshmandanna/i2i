@@ -40,16 +40,29 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         return;
       }
 
-      // Get updated session
-      const session = await getSession();
-      if (session?.user) {
-        set({
-          isAuthenticated: true,
-          user: session.user,
-          isLoading: false,
-          error: null,
-        });
+      // If no error and result.ok is true, login was successful
+      if (result?.ok) {
+        // Get updated session
+        const session = await getSession();
+        if (session?.user) {
+          set({
+            isAuthenticated: true,
+            user: session.user,
+            isLoading: false,
+            error: null,
+          });
+
+          // Redirect to dashboard on successful login
+          window.location.href = "/dashboard";
+          return;
+        }
       }
+
+      // If we get here, something went wrong
+      set({
+        error: "Login failed - please try again",
+        isLoading: false,
+      });
     } catch (error) {
       console.error("Login error:", error);
       set({
