@@ -66,9 +66,13 @@ export class UserRepository {
 
   // Delete user
   static async delete(id: string): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id));
-
-    return (result.rowCount ?? 0) > 0;
+    try {
+      await db.delete(users).where(eq(users.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return false;
+    }
   }
 
   // Check if user is whitelisted

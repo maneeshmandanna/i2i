@@ -68,11 +68,13 @@ export class ProcessingJobRepository {
 
   // Delete job
   static async delete(id: string): Promise<boolean> {
-    const result = await db
-      .delete(processingJobs)
-      .where(eq(processingJobs.id, id));
-
-    return (result.rowCount ?? 0) > 0;
+    try {
+      await db.delete(processingJobs).where(eq(processingJobs.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting processing job:", error);
+      return false;
+    }
   }
 
   // Update job status

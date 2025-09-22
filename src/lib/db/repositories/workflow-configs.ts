@@ -77,11 +77,13 @@ export class WorkflowConfigRepository {
 
   // Delete workflow config
   static async delete(id: string): Promise<boolean> {
-    const result = await db
-      .delete(workflowConfigs)
-      .where(eq(workflowConfigs.id, id));
-
-    return (result.rowCount ?? 0) > 0;
+    try {
+      await db.delete(workflowConfigs).where(eq(workflowConfigs.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting workflow config:", error);
+      return false;
+    }
   }
 
   // Toggle workflow config active status
