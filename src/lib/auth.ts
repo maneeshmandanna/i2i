@@ -1,6 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
 import { UserRepository } from "./db";
 import { z } from "zod";
 
@@ -12,10 +11,11 @@ const loginSchema = z.object({
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    // Temporarily disabled Google OAuth to fix verification issue
+    // GoogleProvider({
+    //   clientId: process.env.GOOGLE_CLIENT_ID!,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    // }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -60,31 +60,12 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60, // 24 hours
   },
   callbacks: {
-    async signIn({ user, account }) {
-      // For Google OAuth, check if user is whitelisted
-      if (account?.provider === "google") {
-        const isWhitelisted = await UserRepository.isWhitelisted(user.email!);
-        if (!isWhitelisted) {
-          return false; // Deny access if not whitelisted
-        }
-        return true;
-      }
-
-      // For credentials provider, authorization is handled in the provider
-      return true;
-    },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       // Include user data in JWT token
       if (user) {
         token.id = user.id;
         token.email = user.email;
-
-        // For Google OAuth, check whitelist status
-        if (account?.provider === "google") {
-          token.isWhitelisted = await UserRepository.isWhitelisted(user.email!);
-        } else {
-          token.isWhitelisted = user.isWhitelisted;
-        }
+        token.isWhitelisted = user.isWhitelisted;
       }
       return token;
     },
@@ -103,6 +84,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
     error: "/login",
+    verifyRequest: "/login", // Redirect verification requests to login
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
