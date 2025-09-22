@@ -1,15 +1,11 @@
-import { drizzle } from "drizzle-orm/vercel-postgres";
-import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
-import { sql } from "@vercel/postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-// Detect if we're using Vercel Postgres or external database
-function isVercelPostgres(): boolean {
-  // Vercel Postgres sets these specific environment variables
+// Detect if we're using Neon or other external Postgres
+function isNeonDatabase(): boolean {
   return !!(
-    process.env.POSTGRES_URL &&
-    (process.env.POSTGRES_PRISMA_URL || process.env.VERCEL_ENV)
+    process.env.POSTGRES_URL && process.env.POSTGRES_URL.includes("neon.tech")
   );
 }
 
@@ -27,23 +23,16 @@ function getConnection() {
       );
     }
 
-    if (isVercelPostgres()) {
-      // Use Vercel Postgres optimized connection
-      console.log("🚀 Using Vercel Postgres connection");
-      _db = drizzle(sql, { schema });
-      _client = sql;
-    } else {
-      // Use standard PostgreSQL connection (for Supabase, local, etc.)
-      console.log("🐘 Using standard PostgreSQL connection");
-      _client = postgres(databaseUrl, {
-        prepare: false,
-        // Optimize for serverless
-        max: 1,
-        idle_timeout: 20,
-        connect_timeout: 10,
-      });
-      _db = drizzlePostgres(_client, { schema });
-    }
+    // Use postgres-js for all connections (works with Neon, Supabase, etc.)
+    console.log("🐘 Using Postgres connection");
+    _client = postgres(databaseUrl, {
+      prepare: false,
+      // Optimize for serverless and Neon
+      max: 1,
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
+    _db = drizzle(_client, { schema });
   }
 
   return { db: _db, client: _client };
@@ -61,13 +50,7 @@ export const db = new Proxy({} as ReturnType<typeof drizzle>, {
 export async function testConnection(): Promise<boolean> {
   try {
     const { client } = getConnection();
-
-    if (isVercelPostgres()) {
-      await client`SELECT 1`;
-    } else {
-      await client`SELECT 1`;
-    }
-
+    await client`SELECT 1`;
     return true;
   } catch (error) {
     console.error("Database connection failed:", error);
@@ -79,26 +62,20 @@ export async function testConnection(): Promise<boolean> {
 export async function healthCheck() {
   try {
     const { client } = getConnection();
-
-    let result;
-    if (isVercelPostgres()) {
-      result = await client`SELECT NOW() as current_time`;
-    } else {
-      result = await client`SELECT NOW() as current_time`;
-    }
+    const result = await client`SELECT NOW() as current_time`;
 
     return {
       status: "healthy",
-      timestamp: result.rows?.[0]?.current_time || result[0]?.current_time,
+      timestamp: result[0]?.current_time,
       connection: "active",
-      provider: isVercelPostgres() ? "vercel-postgres" : "external-postgres",
+      provider: isNeonDatabase() ? "neon-postgres" : "external-postgres",
     };
   } catch (error) {
     return {
       status: "unhealthy",
       error: error instanceof Error ? error.message : "Unknown error",
       connection: "failed",
-      provider: isVercelPostgres() ? "vercel-postgres" : "external-postgres",
+      provider: isNeonDatabase() ? "neon-postgres" : "external-postgres",
     };
   }
 }
