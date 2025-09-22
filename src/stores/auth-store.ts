@@ -52,8 +52,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             error: null,
           });
 
-          // Redirect to dashboard on successful login
-          window.location.href = "/dashboard";
+          // Redirect based on user role
+          const userRole = session.user.role;
+          if (userRole === "admin" || userRole === "co-owner") {
+            window.location.href = "/admin";
+          } else {
+            window.location.href = "/dashboard";
+          }
           return;
         }
       }
