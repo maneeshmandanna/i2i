@@ -13,7 +13,8 @@ export default withAuth(
       pathname.startsWith("/api/auth") ||
       pathname.startsWith("/api/test-") ||
       pathname.startsWith("/api/debug") ||
-      pathname.startsWith("/api/admin/migrate-roles")
+      pathname.startsWith("/api/admin/migrate-roles") ||
+      pathname.startsWith("/test-")
     ) {
       return NextResponse.next();
     }
@@ -55,7 +56,8 @@ export default withAuth(
           pathname.startsWith("/api/auth") ||
           pathname.startsWith("/api/test-") ||
           pathname.startsWith("/api/debug") ||
-          pathname.startsWith("/api/admin/migrate-roles")
+          pathname.startsWith("/api/admin/migrate-roles") ||
+          pathname.startsWith("/test-")
         ) {
           return true;
         }
@@ -74,7 +76,11 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - test- (test pages)
+     * - api/auth (NextAuth)
+     * - api/test- (test APIs)
+     * - api/debug (debug APIs)
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|test-|api/auth|api/test-|api/debug).*)",
   ],
 };
