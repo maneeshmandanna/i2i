@@ -1,25 +1,37 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 export default function Home() {
-  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "loading") return; // Still loading
+    // Check if user has env session
+    const envSession = localStorage.getItem("envSession");
 
-    if (session?.user?.isWhitelisted) {
-      // User is authenticated and whitelisted, redirect to dashboard
-      router.push("/dashboard");
-    } else {
-      // Not authenticated or not whitelisted, redirect to login
-      router.push("/login");
+    if (envSession) {
+      try {
+        const session = JSON.parse(envSession);
+        // Check if session is still valid (24 hours)
+        const sessionAge = Date.now() - session.loginTime;
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+        if (sessionAge < maxAge) {
+          // Valid session, redirect to dashboard
+          router.push("/env-dashboard");
+          return;
+        }
+      } catch (error) {
+        // Invalid session data, remove it
+        localStorage.removeItem("envSession");
+      }
     }
-  }, [session, status, router]);
+
+    // No valid session, redirect to login
+    router.push("/env-login");
+  }, [router]);
 
   // Show loading state while redirecting
   return (

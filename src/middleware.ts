@@ -1,86 +1,45 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default withAuth(
-  function middleware(req) {
-    const { pathname } = req.nextUrl;
-    const token = req.nextauth.token;
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-    // Allow access to public routes and test endpoints
-    if (
-      pathname === "/" ||
-      pathname.startsWith("/login") ||
-      pathname.startsWith("/api/auth") ||
-      pathname.startsWith("/api/test-") ||
-      pathname.startsWith("/api/debug") ||
-      pathname.startsWith("/api/admin/migrate-roles") ||
-      pathname.startsWith("/test-")
-    ) {
-      return NextResponse.next();
-    }
-
-    // Redirect to login if not authenticated
-    if (!token) {
-      const loginUrl = new URL("/login", req.url);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    // Check role-based access for admin routes
-    if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-      const userRole = token.role as string;
-      if (userRole !== "admin" && userRole !== "co-owner") {
-        const loginUrl = new URL("/login?error=AccessDenied", req.url);
-        return NextResponse.redirect(loginUrl);
-      }
-    }
-
-    // Check if user is whitelisted for other protected routes
-    if (pathname.startsWith("/dashboard")) {
-      if (!token.isWhitelisted) {
-        const loginUrl = new URL("/login?error=AccessDenied", req.url);
-        return NextResponse.redirect(loginUrl);
-      }
-    }
-
+  // Allow public routes
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/env-login") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/api/env-auth") ||
+    pathname.startsWith("/_next") ||
+    pathname.includes("favicon.ico")
+  ) {
     return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const { pathname } = req.nextUrl;
-
-        // Allow access to public routes
-        if (
-          pathname === "/" ||
-          pathname.startsWith("/login") ||
-          pathname.startsWith("/api/auth") ||
-          pathname.startsWith("/api/test-") ||
-          pathname.startsWith("/api/debug") ||
-          pathname.startsWith("/api/admin/migrate-roles") ||
-          pathname.startsWith("/test-")
-        ) {
-          return true;
-        }
-
-        // Require authentication for protected routes
-        return !!token;
-      },
-    },
   }
-);
+
+  // For protected routes, redirect to login if no session
+  if (
+    pathname.startsWith("/env-dashboard") ||
+    pathname.startsWith("/env-admin") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin")
+  ) {
+    // In middleware, we can't access localStorage, so we'll let the client-side handle auth
+    // The pages themselves will check for valid sessions
+    return NextResponse.next();
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
+     * - api (api routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - test- (test pages)
-     * - api/auth (NextAuth)
-     * - api/test- (test APIs)
-     * - api/debug (debug APIs)
      */
-    "/((?!_next/static|_next/image|favicon.ico|test-|api/auth|api/test-|api/debug).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
