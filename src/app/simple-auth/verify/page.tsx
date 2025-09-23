@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function VerifyMagicLinkPage() {
+// Force dynamic rendering to avoid prerender issues with useSearchParams
+export const dynamic = "force-dynamic";
+
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -107,5 +110,27 @@ export default function VerifyMagicLinkPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyMagicLinkPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+            <div className="text-center">
+              <Loader2 className="mx-auto h-12 w-12 text-blue-500 animate-spin mb-4" />
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                Loading...
+              </h1>
+              <p className="text-gray-600">Please wait...</p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <VerifyContent />
+    </Suspense>
   );
 }
